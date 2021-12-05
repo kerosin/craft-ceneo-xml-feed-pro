@@ -1,0 +1,250 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * @author    kerosin
+ * @copyright Copyright (c) 2021 kerosin
+ * @link      https://github.com/kerosin
+ * @package   CeneoXmlFeedPro
+ * @since     1.0.0
+ */
+#}
+
+{% do view.registerAssetBundle('kerosin\\ceneoxmlfeedpro\\assetbundles\\ceneoxmlfeedpro\\CeneoXmlFeedProAsset') %}
+
+{% import '_includes/forms' as forms %}
+
+{#
+/**
+ * @param object config
+ */
+#}
+{% macro customValueField(config) %}
+    {% set label = config.label ?? null %}
+    {% set instructions = config.instructions ?? null %}
+    {% set name = config.name ?? null %}
+    {% set options = config.options ?? [] %}
+    {% set settings = config.settings ?? {} %}
+
+    {% set input %}
+        <div class="flex">
+            <div>
+                {{ forms.select({
+                    id: name ~ 'Field',
+                    name: name ~ 'Field',
+                    value: settings[name ~ 'Field'],
+                    options: options,
+                    toggle: true,
+                    targetPrefix: name ~ '-field'
+                }) }}
+            </div>
+            <div class="flex-grow">
+                <div id="{{ name }}-field{{ constant('OPTION_CUSTOM_VALUE', settings) }}"{{ not craft.ceneoXmlFeedPro.isCustomValue(settings[name ~ 'Field']) ? ' class="hidden"' }}>
+                    {{ forms.text({
+                        id: name ~ 'CustomValue',
+                        class: 'ltr',
+                        name: name ~ 'CustomValue',
+                        value: settings[name ~ 'CustomValue']
+                    }) }}
+                </div>
+            </div>
+        </div>
+    {% endset %}
+
+    {{ forms.field({
+        label: label,
+        instructions: instructions,
+        errors: settings.getErrors(name ~ 'Field') ?: settings.getErrors(name ~ 'CustomValue')
+    }, input) }}
+{% endmacro %}
+
+{% set fieldOptions = settings.getFieldOptions() %}
+{% set isCommerceInstalled = craft.app.plugins.isPluginInstalled('commerce') %}
+{% set customValueOptions = [{
+    label: '',
+    value: ''
+}, {
+    label: 'Custom Value...'|t('ceneo-xml-feed-pro'),
+    value: constant('OPTION_CUSTOM_VALUE', settings)
+}] %}
+
+{% if craft.app.plugins.pluginInfo('ceneo-xml-feed-pro').isTrial %}
+    <div class="warning-alert warning with-icon">
+        {{ 'This is a TRIAL version. The feed is limited to a few items.'|t('ceneo-xml-feed-pro') }}
+    </div>
+{% endif %}
+
+{% if isCommerceInstalled %}
+    <h2>{{ 'General'|t('ceneo-xml-feed-pro') }}</h2>
+
+    {{ forms.selectField({
+        label: 'Currency'|t('ceneo-xml-feed-pro'),
+        id: 'currency',
+        name: 'currency',
+        value: settings.currency,
+        options: {'': ''}|merge(settings.currencyOptions),
+        errors: settings.getErrors('currency')
+    }) }}
+
+    <h3>{{ 'Variants'|t('ceneo-xml-feed-pro') }}</h3>
+
+    {{ forms.lightswitchField({
+        label: 'Include Variants'|t('ceneo-xml-feed-pro'),
+        id: 'includeVariants',
+        name: 'includeVariants',
+        on: settings.includeVariants,
+        errors: settings.getErrors('includeVariants'),
+        toggle: 'includeVariants-dependent-fields'
+    }) }}
+
+    <div id="includeVariants-dependent-fields"{{ not settings.includeVariants ? ' class="hidden"' }}>
+        {{ forms.lightswitchField({
+            label: 'Use Product Url for Variants'|t('ceneo-xml-feed-pro'),
+            id: 'useProductUrl',
+            name: 'useProductUrl',
+            on: settings.useProductUrl,
+            errors: settings.getErrors('useProductUrl')
+        }) }}
+
+        {{ forms.lightswitchField({
+            label: 'Use Product Data for Variants'|t('ceneo-xml-feed-pro'),
+            id: 'useProductData',
+            name: 'useProductData',
+            on: settings.useProductData,
+            errors: settings.getErrors('useProductData')
+        }) }}
+    </div>
+
+    <hr>
+{% endif %}
+
+<h2>{{ 'Fields Mapping'|t('ceneo-xml-feed-pro') }}</h2>
+
+<h3>{{ 'Required Fields'|t('bestpricegr-xml-feed-pro') }}</h3>
+
+{{ forms.selectField({
+    label: 'ID'|t('ceneo-xml-feed-pro'),
+    instructions: 'The product\'s unique identifier.'|t('ceneo-xml-feed-pro'),
+    id: 'idField',
+    name: 'idField',
+    value: settings.idField,
+    options: {'': ''}|merge(fieldOptions),
+    errors: settings.getErrors('idField')
+}) }}
+
+{{ forms.selectField({
+    label: 'Price'|t('ceneo-xml-feed-pro'),
+    instructions: 'The product\'s price.'|t('ceneo-xml-feed-pro'),
+    id: 'priceField',
+    name: 'priceField',
+    value: settings.priceField,
+    options: {'': ''}|merge(fieldOptions),
+    errors: settings.getErrors('priceField')
+}) }}
+
+{{ _self.customValueField({
+    label: 'Availability'|t('ceneo-xml-feed-pro'),
+    instructions: 'The product\'s availability.'|t('ceneo-xml-feed-pro'),
+    name: 'avail',
+    options: customValueOptions|merge(fieldOptions),
+    settings: settings
+}) }}
+
+{{ _self.customValueField({
+    label: 'Category'|t('ceneo-xml-feed-pro'),
+    instructions: 'The product\'s category.'|t('ceneo-xml-feed-pro'),
+    name: 'cat',
+    options: customValueOptions|merge(fieldOptions),
+    settings: settings
+}) }}
+
+{{ forms.selectField({
+    label: 'Name'|t('ceneo-xml-feed-pro'),
+    instructions: 'The product\'s name.'|t('ceneo-xml-feed-pro'),
+    id: 'nameField',
+    name: 'nameField',
+    value: settings.nameField,
+    options: {'': ''}|merge(fieldOptions),
+    errors: settings.getErrors('nameField')
+}) }}
+
+{{ forms.selectField({
+    label: 'Main Image'|t('ceneo-xml-feed-pro'),
+    instructions: 'The product\'s main image.'|t('ceneo-xml-feed-pro'),
+    id: 'imgsMainField',
+    name: 'imgsMainField',
+    value: settings.imgsMainField,
+    options: {'': ''}|merge(fieldOptions),
+    errors: settings.getErrors('imgsMainField')
+}) }}
+
+{{ forms.selectField({
+    label: 'Description'|t('ceneo-xml-feed-pro'),
+    instructions: 'The product\'s description.'|t('ceneo-xml-feed-pro'),
+    id: 'descField',
+    name: 'descField',
+    value: settings.descField,
+    options: {'': ''}|merge(fieldOptions),
+    errors: settings.getErrors('descField')
+}) }}
+
+{{ forms.editableTableField({
+    label: 'Attributes'|t('ceneo-xml-feed-pro'),
+    id: 'attrs',
+    name: 'attrs',
+    cols: {
+        name: {
+            type: 'singleline',
+            heading: 'Name'|t('ceneo-xml-feed-pro')
+        },
+        field: {
+            type: 'select',
+            heading: 'Field'|t('ceneo-xml-feed-pro'),
+            options: [{
+                label: 'Custom Value'|t('ceneo-xml-feed-pro'),
+                value: constant('OPTION_CUSTOM_VALUE', settings)
+            }]|merge(fieldOptions)
+        },
+        customValue: {
+            type: 'singleline',
+            heading: 'Custom Value'|t('ceneo-xml-feed-pro')
+        }
+    },
+    rows: settings.attrs,
+    errors: settings.getErrors('attrs')
+}) }}
+
+<h3>{{ 'Optional Fields'|t('ceneo-xml-feed-pro') }}</h3>
+
+{{ forms.selectField({
+    label: 'Weight'|t('ceneo-xml-feed-pro'),
+    instructions: 'The product\'s weight.'|t('ceneo-xml-feed-pro'),
+    id: 'weightField',
+    name: 'weightField',
+    value: settings.weightField,
+    options: {'': ''}|merge(fieldOptions),
+    errors: settings.getErrors('weightField')
+}) }}
+
+{{ _self.customValueField({
+    label: 'Basket'|t('ceneo-xml-feed-pro'),
+    name: 'basket',
+    options: customValueOptions|merge(fieldOptions),
+    settings: settings
+}) }}
+
+{{ _self.customValueField({
+    label: 'Stock'|t('ceneo-xml-feed-pro'),
+    name: 'stock',
+    options: customValueOptions|merge(fieldOptions),
+    settings: settings
+}) }}
+
+{{ forms.selectField({
+    label: 'Additional Image'|t('ceneo-xml-feed-pro'),
+    instructions: 'The product\'s additional image.'|t('ceneo-xml-feed-pro'),
+    id: 'imgsIField',
+    name: 'imgsIField',
+    value: settings.imgsIField,
+    options: {'': ''}|merge(fieldOptions),
+    errors: settings.getErrors('imgsIField')
+}) }}

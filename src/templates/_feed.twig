@@ -1,0 +1,24 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * @author    kerosin
+ * @copyright Copyright (c) 2021 kerosin
+ * @link      https://github.com/kerosin
+ * @package   CeneoXmlFeedPro
+ * @since     1.0.0
+ */
+#}
+{% spaceless %}
+    <?xml version="1.0" encoding="utf-8"?>
+    <offers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1">
+        {% for element in elements %}
+            {% if craft.ceneoXmlFeedPro.isIncludeElementVariants(element) %}
+                {% for variant in element.variants() %}
+                    {% include 'ceneo-xml-feed-pro/_includes/offer' with {element: variant} %}
+                {% endfor %}
+            {% else %}
+                {% include 'ceneo-xml-feed-pro/_includes/offer' %}
+            {% endif %}
+        {% endfor %}
+    </offers>
+{% endspaceless %}

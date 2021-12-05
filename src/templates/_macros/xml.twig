@@ -1,0 +1,108 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * @author    kerosin
+ * @copyright Copyright (c) 2021 kerosin
+ * @link      https://github.com/kerosin
+ * @package   CeneoXmlFeedPro
+ * @since     1.0.0
+ */
+#}
+
+{#
+/**
+ * @param object config
+ */
+#}
+{% macro element(config) %}
+    {% spaceless %}
+        {% set name = config.name ?? null %}
+        {% set isAttr = config.isAttr ?? false %}
+        {% set valueAttr = config.valueAttr ?? null %}
+        {% set value = config.value is defined ? config.value : false %}
+        {% set element = config.element ?? null %}
+        {% set field = config.field ?? null %}
+        {% set customValue = config.customValue ?? null %}
+        {% set multiple = config.multiple ?? false %}
+        {% set separator = config.separator ?? ',' %}
+        {% set suffix = config.suffix ?? null %}
+        {% set suffixSeparator = config.suffixSeparator ?? ' ' %}
+        {% set number = config.number ?? false %}
+        {% set format = config.format ?? false %}
+        {% set decimalPoint = config.decimalPoint ?? '.' %}
+        {% set thousandSep = config.thousandSep ?? '' %}
+        {% set multiplier = config.multiplier ?? null %}
+        {% set currency = config.currency ?? null %}
+        {% set allowableTags = config.allowableTags ?? null %}
+        {% set raw = allowableTags ?? (config.raw ?? false) %}
+        {% set allowEmpty = config.allowEmpty ?? false %}
+        {% set attrs = config.attrs ?? {} %}
+        {% set isCommerceInstalled = craft.app.plugins.isPluginInstalled('commerce') %}
+
+        {% if value is same as(false) and element is not empty and field is not empty %}
+            {% set value = craft.ceneoXmlFeedPro.elementFieldValue(element, field, customValue) %}
+        {% endif %}
+
+        {% if name is not empty and (value is not empty or allowEmpty) %}
+            {% set values = value is iterable ? value : [value] %}
+
+            {% if values is not empty %}
+                {% set tmp = values %}
+                {% set values = [] %}
+                {% set suffix = suffix is not empty ? suffix|striptags|trim : suffix %}
+
+                {% for value in tmp %}
+                    {% set value = value|striptags(allowableTags)|trim %}
+
+                    {% if value is not empty %}
+                        {% if number %}
+                            {% set value = value|replace({',': '.'}) %}
+
+                            {% if multiplier is not empty %}
+                                {% set multiplier = multiplier|replace({',': '.'}) %}
+
+                                {% if multiplier > 0 %}
+                                    {% set value = value + (value * multiplier / 100) %}
+                                {% endif %}
+                            {% endif %}
+
+                            {% if isCommerceInstalled and currency %}
+                                {% set value = value|commerceCurrency(currency, convert = true, format = false) %}
+                            {% endif %}
+
+                            {% set value = format ? value|number_format(2, decimalPoint, thousandSep) : (value + 0) %}
+                        {% endif %}
+
+                        {% set value = suffix is not empty ? value ~ suffixSeparator ~ suffix : value %}
+
+                        {% set values = values|merge([value]) %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            {% if values is not empty %}
+                {% if not multiple %}
+                    {% set values = [values|join(separator)] %}
+                {% endif %}
+
+                {% for value in values %}
+                    {% if isAttr %}
+                        {{ name }}="{{ raw ? value|raw : value }}"
+                    {% elseif valueAttr is not empty %}
+                        <{{ name }} {{ valueAttr }}="{{ raw ? value|raw : value }}"{{ attrs is not empty ? attr(attrs) }}/>
+                    {% else %}
+                        <{{ name }}{{ attrs is not empty ? attr(attrs) }}><![CDATA[{{ raw ? value|raw : value }}]]></{{ name }}>
+                    {% endif %}
+                {% endfor %}
+            {% elseif allowEmpty %}
+                {% if isAttr %}
+                    {{ name }}
+                {% elseif valueAttr is not empty %}
+                    <{{ name }} {{ valueAttr }}{{ attrs is not empty ? attr(attrs) }}/>
+                {% else %}
+                    <{{ name }}{{ attrs is not empty ? attr(attrs) }}></{{ name }}>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endspaceless %}
+{% endmacro %}

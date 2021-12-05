@@ -1,0 +1,160 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * @author    kerosin
+ * @copyright Copyright (c) 2021 kerosin
+ * @link      https://github.com/kerosin
+ * @package   CeneoXmlFeedPro
+ * @since     1.0.0
+ */
+#}
+
+{% import 'ceneo-xml-feed-pro/_macros/xml' as xml %}
+
+{% set variables = craft.ceneoXmlFeedPro %}
+
+{# id #}
+{% set idAttr %}
+    {{ xml.element({
+        name: 'id',
+        isAttr: true,
+        element: element,
+        field: settings.idField
+    }) }}
+{% endset %}
+
+{# url #}
+{% set urlAttr %}
+    {{ xml.element({
+        name: 'url',
+        isAttr: true,
+        value: variables.elementUrl(element)
+    }) }}
+{% endset %}
+
+{# price #}
+{% set priceAttr %}
+    {{ xml.element({
+        name: 'price',
+        isAttr: true,
+        element: element,
+        field: settings.priceField,
+        number: true,
+        format: true,
+        currency: settings.currency
+    }) }}
+{% endset %}
+
+{# avail #}
+{% set availAttr %}
+    {{ xml.element({
+        name: 'avail',
+        isAttr: true,
+        element: element,
+        field: settings.availField,
+        customValue: settings.availCustomValue
+    }) }}
+{% endset %}
+
+{# weight #}
+{% set weightAttr %}
+    {{ xml.element({
+        name: 'weight',
+        isAttr: true,
+        element: element,
+        field: settings.weightField,
+        number: true
+    }) }}
+{% endset %}
+
+{# basket #}
+{% set basketAttr %}
+    {{ xml.element({
+        name: 'basket',
+        isAttr: true,
+        element: element,
+        field: settings.basketField,
+        customValue: settings.basketCustomValue
+    }) }}
+{% endset %}
+
+{# stock #}
+{% set stockAttr %}
+    {{ xml.element({
+        name: 'stock',
+        isAttr: true,
+        element: element,
+        field: settings.stockField,
+        customValue: settings.stockCustomValue
+    }) }}
+{% endset %}
+
+<o {{ idAttr|spaceless }} {{ urlAttr|spaceless }} {{ priceAttr|spaceless }} {{ availAttr|spaceless }} {{ weightAttr|spaceless }} {{ basketAttr|spaceless }} {{ stockAttr|spaceless }}>
+
+    {# cat #}
+    {{ xml.element({
+        name: 'cat',
+        element: element,
+        field: settings.catField,
+        customValue: settings.catCustomValue,
+        separator: '/'
+    }) }}
+
+    {# name #}
+    {{ xml.element({
+        name: 'name',
+        element: element,
+        field: settings.nameField
+    }) }}
+
+    {% if settings.imgsMainField is not empty or settings.imgsIField is not empty %}
+        <imgs>
+            {# main #}
+            {{ xml.element({
+                name: 'main',
+                valueAttr: 'url',
+                element: element,
+                field: settings.imgsMainField
+            }) }}
+
+            {# i #}
+            {{ xml.element({
+                name: 'i',
+                valueAttr: 'url',
+                element: element,
+                field: settings.imgsIField,
+                multiple: true
+            }) }}
+        </imgs>
+    {% endif %}
+
+    {# desc #}
+    {{ xml.element({
+        name: 'desc',
+        element: element,
+        field: settings.descField,
+        allowableTags: '<p><h1><h2><br><ol><ul><li><i><b><strong><em>'
+    }) }}
+
+    {# attrs #}
+    {% if settings.attrs is not empty and settings.attrs|length %}
+        <attrs>
+            {% for item in settings.attrs %}
+                {% set itemName = item.name|trim %}
+                {% if itemName is not empty and item.field is not empty %}
+                    {{ xml.element({
+                        name: 'a',
+                        element: element,
+                        field: item.field,
+                        customValue: item.customValue,
+                        separator: ';',
+                        attrs: {
+                            name: itemName
+                        }
+                    }) }}
+                {% endif %}
+            {% endfor %}
+        </attrs>
+    {% endif %}
+
+</o>
