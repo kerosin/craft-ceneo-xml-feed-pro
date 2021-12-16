@@ -47,10 +47,24 @@ class CeneoXmlFeedProService extends Component
         if (!empty($criteria)) {
             $result = Entry::findAll($criteria);
         } else {
-            $result = Entry::find()
-                ->site(Craft::$app->getSites()->getCurrentSite())
-                ->status(Entry::STATUS_LIVE)
-                ->all();
+            $query = Entry::find()
+                ->site(Craft::$app->getSites()->getCurrentSite());
+
+            $settings = $this->getSettings();
+
+            if (!empty($settings->entryStatusFilter)) {
+                $query->status($settings->entryStatusFilter);
+            }
+
+            if (!empty($settings->entryTypeFilter)) {
+                $query->typeId($settings->entryTypeFilter);
+            }
+
+            if (!empty($settings->entryCategoryFilter)) {
+                $query->relatedTo($settings->entryCategoryFilter);
+            }
+
+            $result = $query->all();
         }
 
         return $result;
@@ -72,10 +86,28 @@ class CeneoXmlFeedProService extends Component
         if (!empty($criteria)) {
             $result = Product::findAll($criteria);
         } else {
-            $result = Product::find()
-                ->site(Craft::$app->getSites()->getCurrentSite())
-                ->status(Product::STATUS_LIVE)
-                ->all();
+            $query = Product::find()
+                ->site(Craft::$app->getSites()->getCurrentSite());
+
+            $settings = $this->getSettings();
+
+            if (!empty($settings->productStatusFilter)) {
+                $query->status($settings->productStatusFilter);
+            }
+
+            if (!empty($settings->productTypeFilter)) {
+                $query->typeId($settings->productTypeFilter);
+            }
+
+            if (!empty($settings->productCategoryFilter)) {
+                $query->relatedTo($settings->productCategoryFilter);
+            }
+
+            if (!empty($settings->productAvailableForPurchaseFilter)) {
+                $query->availableForPurchase(true);
+            }
+
+            $result = $query->all();
         }
 
         return $result;

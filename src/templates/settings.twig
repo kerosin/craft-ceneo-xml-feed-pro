@@ -248,3 +248,79 @@
     options: {'': ''}|merge(fieldOptions),
     errors: settings.getErrors('imgsIField')
 }) }}
+
+<hr>
+
+<h2>{{ 'Filters'|t('ceneo-xml-feed-pro') }}</h2>
+
+<h3>{{ 'Entries'|t('ceneo-xml-feed-pro') }}</h3>
+
+{{ forms.checkboxGroupField({
+    label: 'Status'|t('ceneo-xml-feed-pro'),
+    id: 'entryStatusFilter',
+    name: 'entryStatusFilter',
+    values: settings.entryStatusFilter,
+    options: settings.statusFilterOptions,
+    errors: settings.getErrors('entryStatusFilter')
+}) }}
+
+{% if settings.entryTypeFilterOptions|length %}
+    {{ forms.checkboxGroupField({
+        label: 'Type'|t('ceneo-xml-feed-pro'),
+        id: 'entryTypeFilter',
+        name: 'entryTypeFilter',
+        values: settings.entryTypeFilter,
+        options: settings.entryTypeFilterOptions,
+        errors: settings.getErrors('entryTypeFilter')
+    }) }}
+{% endif %}
+
+{{ forms.elementSelectField({
+    label: 'Category'|t('ceneo-xml-feed-pro'),
+    id: 'entryCategoryFilter',
+    name: 'entryCategoryFilter',
+    elements: (settings.entryCategoryFilter|length ? craft.categories.id(settings.entryCategoryFilter).all() : []),
+    elementType: 'craft\\elements\\Category',
+    errors: settings.getErrors('entryCategoryFilter'),
+}) }}
+
+{% if isCommerceInstalled %}
+    <h3>{{ 'Products'|t('ceneo-xml-feed-pro') }}</h3>
+
+    {{ forms.checkboxGroupField({
+        label: 'Status'|t('ceneo-xml-feed-pro'),
+        id: 'productStatusFilter',
+        name: 'productStatusFilter',
+        values: settings.productStatusFilter,
+        options: settings.statusFilterOptions,
+        errors: settings.getErrors('productStatusFilter')
+    }) }}
+
+    {% if settings.productTypeFilterOptions|length %}
+        {{ forms.checkboxGroupField({
+            label: 'Type'|t('ceneo-xml-feed-pro'),
+            id: 'productTypeFilter',
+            name: 'productTypeFilter',
+            values: settings.productTypeFilter,
+            options: settings.productTypeFilterOptions,
+            errors: settings.getErrors('productTypeFilter')
+        }) }}
+    {% endif %}
+
+    {{ forms.elementSelectField({
+        label: 'Category'|t('ceneo-xml-feed-pro'),
+        id: 'productCategoryFilter',
+        name: 'productCategoryFilter',
+        elements: (settings.productCategoryFilter|length ? craft.categories.id(settings.productCategoryFilter).all() : []),
+        elementType: 'craft\\elements\\Category',
+        errors: settings.getErrors('productCategoryFilter'),
+    }) }}
+
+    {{ forms.checkboxField({
+        label: 'Available for Purcahse'|t('ceneo-xml-feed-pro'),
+        id: 'productAvailableForPurchaseFilter',
+        name: 'productAvailableForPurchaseFilter',
+        checked: settings.productAvailableForPurchaseFilter,
+        errors: settings.getErrors('productAvailableForPurchaseFilter')
+    }) }}
+{% endif %}
