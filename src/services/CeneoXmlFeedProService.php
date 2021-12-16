@@ -92,13 +92,11 @@ class CeneoXmlFeedProService extends Component
             $elements = array_slice($elements, 0, 10);
         }
 
-        $settings = $this->getSettings();
-
         return Craft::$app->getView()->renderTemplate(
             'ceneo-xml-feed-pro/_feed',
             [
                 'elements' => $elements,
-                'settings' => $settings,
+                'settings' => $this->getSettings(),
             ],
             View::TEMPLATE_MODE_CP
         );
@@ -164,12 +162,11 @@ class CeneoXmlFeedProService extends Component
                     $object = $element->getDefaultVariant();
                 }
             } elseif ($element instanceof Variant) {
-                $settings = $this->getSettings();
                 $product = $element->getProduct();
 
                 if (
                     !isset($element->{$field}) &&
-                    $settings->useProductData &&
+                    $this->getSettings()->useProductData &&
                     $product != null &&
                     isset($product->{$field})
                 ) {
@@ -271,11 +268,10 @@ class CeneoXmlFeedProService extends Component
     public function getElementUrl(Element $element): ?string
     {
         $result = $element->getUrl();
-        $settings = $this->getSettings();
 
         if (
             $element instanceof Variant &&
-            $settings->useProductUrl &&
+            $this->getSettings()->useProductUrl &&
             $element->getProduct() != null
         ) {
             $result = $element->getProduct()->getUrl();
@@ -290,9 +286,7 @@ class CeneoXmlFeedProService extends Component
      */
     public function isCustomValue(?string $value): bool
     {
-        $settings = $this->getSettings();
-
-        return $value == $settings::OPTION_CUSTOM_VALUE;
+        return $value == $this->getSettings()::OPTION_CUSTOM_VALUE;
     }
 
     /**
@@ -302,9 +296,9 @@ class CeneoXmlFeedProService extends Component
      */
     public function isIncludeElementVariants(Element $element): bool
     {
-        $settings = $this->getSettings();
-
-        return $settings->includeVariants && $element instanceof Product && $element->getType()->hasVariants;
+        return $this->getSettings()->includeVariants &&
+            $element instanceof Product &&
+            $element->getType()->hasVariants;
     }
 
     // Protected Methods

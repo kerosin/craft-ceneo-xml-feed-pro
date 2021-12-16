@@ -100,7 +100,7 @@
                 {% elseif valueAttr is not empty %}
                     <{{ name }} {{ valueAttr }}{{ attrs is not empty ? attr(attrs) }}/>
                 {% else %}
-                    <{{ name }}{{ attrs is not empty ? attr(attrs) }}></{{ name }}>
+                    <{{ name }}{{ attrs is not empty ? attr(attrs) }}/>
                 {% endif %}
             {% endif %}
         {% endif %}

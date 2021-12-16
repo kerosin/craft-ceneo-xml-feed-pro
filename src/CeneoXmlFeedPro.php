@@ -15,9 +15,9 @@ use kerosin\ceneoxmlfeedpro\web\twig\Extension;
 
 use Craft;
 use craft\base\Plugin;
+use craft\events\RegisterUrlRulesEvent;
 use craft\web\UrlManager;
 use craft\web\twig\variables\CraftVariable;
-use craft\events\RegisterUrlRulesEvent;
 
 use yii\base\Event;
 
