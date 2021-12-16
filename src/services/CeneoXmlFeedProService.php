@@ -65,7 +65,7 @@ class CeneoXmlFeedProService extends Component
     {
         $result = [];
 
-        if (!Craft::$app->getPlugins()->isPluginInstalled('commerce')) {
+        if (!$this->isCommerceInstalled()) {
             return $result;
         }
 
@@ -156,7 +156,7 @@ class CeneoXmlFeedProService extends Component
 
         $object = $element;
 
-        if (Craft::$app->getPlugins()->isPluginInstalled('commerce')) {
+        if ($this->isCommerceInstalled()) {
             if ($element instanceof Product) {
                 if (isset($element->getDefaultVariant()->{$field})) {
                     $object = $element->getDefaultVariant();
@@ -299,6 +299,15 @@ class CeneoXmlFeedProService extends Component
         return $this->getSettings()->includeVariants &&
             $element instanceof Product &&
             $element->getType()->hasVariants;
+    }
+
+    /**
+     * @return bool
+     * @since 1.1.0
+     */
+    public function isCommerceInstalled(): bool
+    {
+        return Craft::$app->getPlugins()->isPluginInstalled('commerce');
     }
 
     // Protected Methods
