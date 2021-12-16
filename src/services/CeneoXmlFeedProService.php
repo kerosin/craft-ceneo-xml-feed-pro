@@ -313,7 +313,7 @@ class CeneoXmlFeedProService extends Component
     /**
      * @return Settings
      */
-    public function getSettings(): Settings
+    protected function getSettings(): Settings
     {
         return CeneoXmlFeedPro::$plugin->getSettings();
     }
