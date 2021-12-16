@@ -115,6 +115,20 @@ class CeneoXmlFeedPro extends Plugin
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getSettingsResponse()
+    {
+        /** @var craft\web\Controller $controller */
+        $controller = Craft::$app->controller;
+
+        return $controller->renderTemplate('settings/plugins/_settings', [
+            'plugin' => $this,
+            'settingsHtml' => $this->settingsHtml(),
+        ]);
+    }
+
+    /**
      * Registers twig extensions.
      *
      * @return void

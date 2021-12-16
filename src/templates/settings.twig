@@ -67,260 +67,310 @@
     value: constant('OPTION_CUSTOM_VALUE', settings)
 }] %}
 
-{% if craft.app.plugins.pluginInfo('ceneo-xml-feed-pro').isTrial %}
-    <div class="warning-alert warning with-icon">
-        {{ 'This is a TRIAL version. The feed is limited to a few items.'|t('ceneo-xml-feed-pro') }}
-    </div>
-{% endif %}
+{% set settingsTabErrorKeys = [
+    'currency',
+    'includeVariants',
+    'useProductUrl',
+    'useProductData',
+] %}
+{% set filtersTabErrorKeys = [
+    'entryStatusFilter',
+    'entryTypeFilter',
+    'entryCategoryFilter',
+    'productStatusFilter',
+    'productTypeFilter',
+    'productCategoryFilter',
+    'productAvailableForPurchaseFilter',
+] %}
+{% set errors = settings.getErrors()|keys %}
+
+{% set tabs = [{
+    label: 'Mapping'|t('ceneo-xml-feed-pro'),
+    url: '#settings-tab-mapping',
+    class: errors|diff(settingsTabErrorKeys, filtersTabErrorKeys)|length ? 'error' : ''
+}] %}
 
 {% if isCommerceInstalled %}
-    <h2>{{ 'General'|t('ceneo-xml-feed-pro') }}</h2>
-
-    {{ forms.selectField({
-        label: 'Currency'|t('ceneo-xml-feed-pro'),
-        id: 'currency',
-        name: 'currency',
-        value: settings.currency,
-        options: {'': ''}|merge(settings.currencyOptions),
-        errors: settings.getErrors('currency')
-    }) }}
-
-    <h3>{{ 'Variants'|t('ceneo-xml-feed-pro') }}</h3>
-
-    {{ forms.lightswitchField({
-        label: 'Include Variants'|t('ceneo-xml-feed-pro'),
-        id: 'includeVariants',
-        name: 'includeVariants',
-        on: settings.includeVariants,
-        errors: settings.getErrors('includeVariants'),
-        toggle: 'includeVariants-dependent-fields'
-    }) }}
-
-    <div id="includeVariants-dependent-fields"{{ not settings.includeVariants ? ' class="hidden"' }}>
-        {{ forms.lightswitchField({
-            label: 'Use Product Url for Variants'|t('ceneo-xml-feed-pro'),
-            id: 'useProductUrl',
-            name: 'useProductUrl',
-            on: settings.useProductUrl,
-            errors: settings.getErrors('useProductUrl')
-        }) }}
-
-        {{ forms.lightswitchField({
-            label: 'Use Product Data for Variants'|t('ceneo-xml-feed-pro'),
-            id: 'useProductData',
-            name: 'useProductData',
-            on: settings.useProductData,
-            errors: settings.getErrors('useProductData')
-        }) }}
-    </div>
-
-    <hr>
+    {% set tabs = tabs|merge([{
+        label: 'Settings'|t('ceneo-xml-feed-pro'),
+        url: '#settings-tab-settings',
+        class: errors|intersect(settingsTabErrorKeys)|length ? 'error' : ''
+    }]) %}
 {% endif %}
 
-<h2>{{ 'Fields Mapping'|t('ceneo-xml-feed-pro') }}</h2>
+{% set tabs = tabs|merge([{
+    label: 'Filters'|t('ceneo-xml-feed-pro'),
+    url: '#settings-tab-filters',
+    class: errors|intersect(filtersTabErrorKeys)|length ? 'error' : ''
+}]) %}
 
-<h3>{{ 'Required Fields'|t('bestpricegr-xml-feed-pro') }}</h3>
-
-{{ forms.selectField({
-    label: 'ID'|t('ceneo-xml-feed-pro'),
-    instructions: 'The product\'s unique identifier.'|t('ceneo-xml-feed-pro'),
-    id: 'idField',
-    name: 'idField',
-    value: settings.idField,
-    options: {'': ''}|merge(fieldOptions),
-    errors: settings.getErrors('idField')
-}) }}
-
-{{ forms.selectField({
-    label: 'Price'|t('ceneo-xml-feed-pro'),
-    instructions: 'The product\'s price.'|t('ceneo-xml-feed-pro'),
-    id: 'priceField',
-    name: 'priceField',
-    value: settings.priceField,
-    options: {'': ''}|merge(fieldOptions),
-    errors: settings.getErrors('priceField')
-}) }}
-
-{{ _self.customValueField({
-    label: 'Availability'|t('ceneo-xml-feed-pro'),
-    instructions: 'The product\'s availability.'|t('ceneo-xml-feed-pro'),
-    name: 'avail',
-    options: customValueOptions|merge(fieldOptions),
-    settings: settings
-}) }}
-
-{{ _self.customValueField({
-    label: 'Category'|t('ceneo-xml-feed-pro'),
-    instructions: 'The product\'s category.'|t('ceneo-xml-feed-pro'),
-    name: 'cat',
-    options: customValueOptions|merge(fieldOptions),
-    settings: settings
-}) }}
-
-{{ forms.selectField({
-    label: 'Name'|t('ceneo-xml-feed-pro'),
-    instructions: 'The product\'s name.'|t('ceneo-xml-feed-pro'),
-    id: 'nameField',
-    name: 'nameField',
-    value: settings.nameField,
-    options: {'': ''}|merge(fieldOptions),
-    errors: settings.getErrors('nameField')
-}) }}
-
-{{ forms.selectField({
-    label: 'Main Image'|t('ceneo-xml-feed-pro'),
-    instructions: 'The product\'s main image.'|t('ceneo-xml-feed-pro'),
-    id: 'imgsMainField',
-    name: 'imgsMainField',
-    value: settings.imgsMainField,
-    options: {'': ''}|merge(fieldOptions),
-    errors: settings.getErrors('imgsMainField')
-}) }}
-
-{{ forms.selectField({
-    label: 'Description'|t('ceneo-xml-feed-pro'),
-    instructions: 'The product\'s description.'|t('ceneo-xml-feed-pro'),
-    id: 'descField',
-    name: 'descField',
-    value: settings.descField,
-    options: {'': ''}|merge(fieldOptions),
-    errors: settings.getErrors('descField')
-}) }}
-
-{{ forms.editableTableField({
-    label: 'Attributes'|t('ceneo-xml-feed-pro'),
-    id: 'attrs',
-    name: 'attrs',
-    cols: {
-        name: {
-            type: 'singleline',
-            heading: 'Name'|t('ceneo-xml-feed-pro')
-        },
-        field: {
-            type: 'select',
-            heading: 'Field'|t('ceneo-xml-feed-pro'),
-            options: [{
-                label: 'Custom Value'|t('ceneo-xml-feed-pro'),
-                value: constant('OPTION_CUSTOM_VALUE', settings)
-            }]|merge(fieldOptions)
-        },
-        customValue: {
-            type: 'singleline',
-            heading: 'Custom Value'|t('ceneo-xml-feed-pro')
+<header id="content-header" class="pane-header">
+    {% include '_includes/tabs' with {
+        containerAttributes: {
+            id: 'tabs'
         }
-    },
-    rows: settings.attrs,
-    errors: settings.getErrors('attrs')
-}) }}
+    } %}
+</header>
 
-<h3>{{ 'Optional Fields'|t('ceneo-xml-feed-pro') }}</h3>
+{% namespace 'settings' %}
+    <div id="tab-mapping">
 
-{{ forms.selectField({
-    label: 'Weight'|t('ceneo-xml-feed-pro'),
-    instructions: 'The product\'s weight.'|t('ceneo-xml-feed-pro'),
-    id: 'weightField',
-    name: 'weightField',
-    value: settings.weightField,
-    options: {'': ''}|merge(fieldOptions),
-    errors: settings.getErrors('weightField')
-}) }}
+        {% if craft.app.plugins.pluginInfo('ceneo-xml-feed-pro').isTrial %}
+            <div class="warning-alert warning with-icon">
+                {{ 'This is a TRIAL version. The feed is limited to a few items.'|t('ceneo-xml-feed-pro') }}
+            </div>
+        {% endif %}
 
-{{ _self.customValueField({
-    label: 'Basket'|t('ceneo-xml-feed-pro'),
-    name: 'basket',
-    options: customValueOptions|merge(fieldOptions),
-    settings: settings
-}) }}
+        <h2>{{ 'Required Fields'|t('ceneo-xml-feed-pro') }}</h2>
 
-{{ _self.customValueField({
-    label: 'Stock'|t('ceneo-xml-feed-pro'),
-    name: 'stock',
-    options: customValueOptions|merge(fieldOptions),
-    settings: settings
-}) }}
-
-{{ forms.selectField({
-    label: 'Additional Image'|t('ceneo-xml-feed-pro'),
-    instructions: 'The product\'s additional image.'|t('ceneo-xml-feed-pro'),
-    id: 'imgsIField',
-    name: 'imgsIField',
-    value: settings.imgsIField,
-    options: {'': ''}|merge(fieldOptions),
-    errors: settings.getErrors('imgsIField')
-}) }}
-
-<hr>
-
-<h2>{{ 'Filters'|t('ceneo-xml-feed-pro') }}</h2>
-
-<h3>{{ 'Entries'|t('ceneo-xml-feed-pro') }}</h3>
-
-{{ forms.checkboxGroupField({
-    label: 'Status'|t('ceneo-xml-feed-pro'),
-    id: 'entryStatusFilter',
-    name: 'entryStatusFilter',
-    values: settings.entryStatusFilter,
-    options: settings.statusFilterOptions,
-    errors: settings.getErrors('entryStatusFilter')
-}) }}
-
-{% if settings.entryTypeFilterOptions|length %}
-    {{ forms.checkboxGroupField({
-        label: 'Type'|t('ceneo-xml-feed-pro'),
-        id: 'entryTypeFilter',
-        name: 'entryTypeFilter',
-        values: settings.entryTypeFilter,
-        options: settings.entryTypeFilterOptions,
-        errors: settings.getErrors('entryTypeFilter')
-    }) }}
-{% endif %}
-
-{{ forms.elementSelectField({
-    label: 'Category'|t('ceneo-xml-feed-pro'),
-    id: 'entryCategoryFilter',
-    name: 'entryCategoryFilter',
-    elements: (settings.entryCategoryFilter|length ? craft.categories.id(settings.entryCategoryFilter).all() : []),
-    elementType: 'craft\\elements\\Category',
-    errors: settings.getErrors('entryCategoryFilter'),
-}) }}
-
-{% if isCommerceInstalled %}
-    <h3>{{ 'Products'|t('ceneo-xml-feed-pro') }}</h3>
-
-    {{ forms.checkboxGroupField({
-        label: 'Status'|t('ceneo-xml-feed-pro'),
-        id: 'productStatusFilter',
-        name: 'productStatusFilter',
-        values: settings.productStatusFilter,
-        options: settings.statusFilterOptions,
-        errors: settings.getErrors('productStatusFilter')
-    }) }}
-
-    {% if settings.productTypeFilterOptions|length %}
-        {{ forms.checkboxGroupField({
-            label: 'Type'|t('ceneo-xml-feed-pro'),
-            id: 'productTypeFilter',
-            name: 'productTypeFilter',
-            values: settings.productTypeFilter,
-            options: settings.productTypeFilterOptions,
-            errors: settings.getErrors('productTypeFilter')
+        {{ forms.selectField({
+            label: 'ID'|t('ceneo-xml-feed-pro'),
+            instructions: 'The product\'s unique identifier.'|t('ceneo-xml-feed-pro'),
+            id: 'idField',
+            name: 'idField',
+            value: settings.idField,
+            options: {'': ''}|merge(fieldOptions),
+            errors: settings.getErrors('idField')
         }) }}
+
+        {{ forms.selectField({
+            label: 'Price'|t('ceneo-xml-feed-pro'),
+            instructions: 'The product\'s price.'|t('ceneo-xml-feed-pro'),
+            id: 'priceField',
+            name: 'priceField',
+            value: settings.priceField,
+            options: {'': ''}|merge(fieldOptions),
+            errors: settings.getErrors('priceField')
+        }) }}
+
+        {{ _self.customValueField({
+            label: 'Availability'|t('ceneo-xml-feed-pro'),
+            instructions: 'The product\'s availability.'|t('ceneo-xml-feed-pro'),
+            name: 'avail',
+            options: customValueOptions|merge(fieldOptions),
+            settings: settings
+        }) }}
+
+        {{ _self.customValueField({
+            label: 'Category'|t('ceneo-xml-feed-pro'),
+            instructions: 'The product\'s category.'|t('ceneo-xml-feed-pro'),
+            name: 'cat',
+            options: customValueOptions|merge(fieldOptions),
+            settings: settings
+        }) }}
+
+        {{ forms.selectField({
+            label: 'Name'|t('ceneo-xml-feed-pro'),
+            instructions: 'The product\'s name.'|t('ceneo-xml-feed-pro'),
+            id: 'nameField',
+            name: 'nameField',
+            value: settings.nameField,
+            options: {'': ''}|merge(fieldOptions),
+            errors: settings.getErrors('nameField')
+        }) }}
+
+        {{ forms.selectField({
+            label: 'Main Image'|t('ceneo-xml-feed-pro'),
+            instructions: 'The product\'s main image.'|t('ceneo-xml-feed-pro'),
+            id: 'imgsMainField',
+            name: 'imgsMainField',
+            value: settings.imgsMainField,
+            options: {'': ''}|merge(fieldOptions),
+            errors: settings.getErrors('imgsMainField')
+        }) }}
+
+        {{ forms.selectField({
+            label: 'Description'|t('ceneo-xml-feed-pro'),
+            instructions: 'The product\'s description.'|t('ceneo-xml-feed-pro'),
+            id: 'descField',
+            name: 'descField',
+            value: settings.descField,
+            options: {'': ''}|merge(fieldOptions),
+            errors: settings.getErrors('descField')
+        }) }}
+
+        {{ forms.editableTableField({
+            label: 'Attributes'|t('ceneo-xml-feed-pro'),
+            id: 'attrs',
+            name: 'attrs',
+            cols: {
+                name: {
+                    type: 'singleline',
+                    heading: 'Name'|t('ceneo-xml-feed-pro')
+                },
+                field: {
+                    type: 'select',
+                    heading: 'Field'|t('ceneo-xml-feed-pro'),
+                    options: [{
+                        label: 'Custom Value'|t('ceneo-xml-feed-pro'),
+                        value: constant('OPTION_CUSTOM_VALUE', settings)
+                    }]|merge(fieldOptions)
+                },
+                customValue: {
+                    type: 'singleline',
+                    heading: 'Custom Value'|t('ceneo-xml-feed-pro')
+                }
+            },
+            rows: settings.attrs,
+            errors: settings.getErrors('attrs')
+        }) }}
+
+        <h2>{{ 'Optional Fields'|t('ceneo-xml-feed-pro') }}</h2>
+
+        {{ forms.selectField({
+            label: 'Weight'|t('ceneo-xml-feed-pro'),
+            instructions: 'The product\'s weight.'|t('ceneo-xml-feed-pro'),
+            id: 'weightField',
+            name: 'weightField',
+            value: settings.weightField,
+            options: {'': ''}|merge(fieldOptions),
+            errors: settings.getErrors('weightField')
+        }) }}
+
+        {{ _self.customValueField({
+            label: 'Basket'|t('ceneo-xml-feed-pro'),
+            name: 'basket',
+            options: customValueOptions|merge(fieldOptions),
+            settings: settings
+        }) }}
+
+        {{ _self.customValueField({
+            label: 'Stock'|t('ceneo-xml-feed-pro'),
+            name: 'stock',
+            options: customValueOptions|merge(fieldOptions),
+            settings: settings
+        }) }}
+
+        {{ forms.selectField({
+            label: 'Additional Image'|t('ceneo-xml-feed-pro'),
+            instructions: 'The product\'s additional image.'|t('ceneo-xml-feed-pro'),
+            id: 'imgsIField',
+            name: 'imgsIField',
+            value: settings.imgsIField,
+            options: {'': ''}|merge(fieldOptions),
+            errors: settings.getErrors('imgsIField')
+        }) }}
+
+    </div>
+
+    {% if isCommerceInstalled %}
+        <div id="tab-settings" class="hidden">
+            <h2>{{ 'Settings'|t('ceneo-xml-feed-pro') }}</h2>
+
+            {{ forms.selectField({
+                label: 'Currency'|t('ceneo-xml-feed-pro'),
+                id: 'currency',
+                name: 'currency',
+                value: settings.currency,
+                options: {'': ''}|merge(settings.currencyOptions),
+                errors: settings.getErrors('currency')
+            }) }}
+
+            <h3>{{ 'Variants'|t('ceneo-xml-feed-pro') }}</h3>
+
+            {{ forms.lightswitchField({
+                label: 'Include Variants'|t('ceneo-xml-feed-pro'),
+                id: 'includeVariants',
+                name: 'includeVariants',
+                on: settings.includeVariants,
+                errors: settings.getErrors('includeVariants'),
+                toggle: 'includeVariants-dependent-fields'
+            }) }}
+
+            <div id="includeVariants-dependent-fields"{{ not settings.includeVariants ? ' class="hidden"' }}>
+                {{ forms.lightswitchField({
+                    label: 'Use Product Url for Variants'|t('ceneo-xml-feed-pro'),
+                    id: 'useProductUrl',
+                    name: 'useProductUrl',
+                    on: settings.useProductUrl,
+                    errors: settings.getErrors('useProductUrl')
+                }) }}
+
+                {{ forms.lightswitchField({
+                    label: 'Use Product Data for Variants'|t('ceneo-xml-feed-pro'),
+                    id: 'useProductData',
+                    name: 'useProductData',
+                    on: settings.useProductData,
+                    errors: settings.getErrors('useProductData')
+                }) }}
+            </div>
+        </div>
     {% endif %}
 
-    {{ forms.elementSelectField({
-        label: 'Category'|t('ceneo-xml-feed-pro'),
-        id: 'productCategoryFilter',
-        name: 'productCategoryFilter',
-        elements: (settings.productCategoryFilter|length ? craft.categories.id(settings.productCategoryFilter).all() : []),
-        elementType: 'craft\\elements\\Category',
-        errors: settings.getErrors('productCategoryFilter'),
-    }) }}
+    <div id="tab-filters" class="hidden">
+        <h2>{{ 'Entries'|t('ceneo-xml-feed-pro') }}</h2>
 
-    {{ forms.checkboxField({
-        label: 'Available for Purcahse'|t('ceneo-xml-feed-pro'),
-        id: 'productAvailableForPurchaseFilter',
-        name: 'productAvailableForPurchaseFilter',
-        checked: settings.productAvailableForPurchaseFilter,
-        errors: settings.getErrors('productAvailableForPurchaseFilter')
-    }) }}
-{% endif %}
+        {{ forms.checkboxGroupField({
+            label: 'Status'|t('ceneo-xml-feed-pro'),
+            id: 'entryStatusFilter',
+            name: 'entryStatusFilter',
+            values: settings.entryStatusFilter,
+            options: settings.statusFilterOptions,
+            errors: settings.getErrors('entryStatusFilter')
+        }) }}
+
+        {% if settings.entryTypeFilterOptions|length %}
+            {{ forms.checkboxGroupField({
+                label: 'Type'|t('ceneo-xml-feed-pro'),
+                id: 'entryTypeFilter',
+                name: 'entryTypeFilter',
+                values: settings.entryTypeFilter,
+                options: settings.entryTypeFilterOptions,
+                errors: settings.getErrors('entryTypeFilter')
+            }) }}
+        {% endif %}
+
+        {{ forms.elementSelectField({
+            label: 'Category'|t('ceneo-xml-feed-pro'),
+            id: 'entryCategoryFilter',
+            name: 'entryCategoryFilter',
+            elements: (settings.entryCategoryFilter|length ? craft.categories.id(settings.entryCategoryFilter).all() : []),
+            elementType: 'craft\\elements\\Category',
+            errors: settings.getErrors('entryCategoryFilter'),
+        }) }}
+
+        {% if isCommerceInstalled %}
+            <hr>
+
+            <h2>{{ 'Products'|t('ceneo-xml-feed-pro') }}</h2>
+
+            {{ forms.checkboxGroupField({
+                label: 'Status'|t('ceneo-xml-feed-pro'),
+                id: 'productStatusFilter',
+                name: 'productStatusFilter',
+                values: settings.productStatusFilter,
+                options: settings.statusFilterOptions,
+                errors: settings.getErrors('productStatusFilter')
+            }) }}
+
+            {% if settings.productTypeFilterOptions|length %}
+                {{ forms.checkboxGroupField({
+                    label: 'Type'|t('ceneo-xml-feed-pro'),
+                    id: 'productTypeFilter',
+                    name: 'productTypeFilter',
+                    values: settings.productTypeFilter,
+                    options: settings.productTypeFilterOptions,
+                    errors: settings.getErrors('productTypeFilter')
+                }) }}
+            {% endif %}
+
+            {{ forms.elementSelectField({
+                label: 'Category'|t('ceneo-xml-feed-pro'),
+                id: 'productCategoryFilter',
+                name: 'productCategoryFilter',
+                elements: (settings.productCategoryFilter|length ? craft.categories.id(settings.productCategoryFilter).all() : []),
+                elementType: 'craft\\elements\\Category',
+                errors: settings.getErrors('productCategoryFilter'),
+            }) }}
+
+            {{ forms.checkboxField({
+                label: 'Available for Purcahse'|t('ceneo-xml-feed-pro'),
+                id: 'productAvailableForPurchaseFilter',
+                name: 'productAvailableForPurchaseFilter',
+                checked: settings.productAvailableForPurchaseFilter,
+                errors: settings.getErrors('productAvailableForPurchaseFilter')
+            }) }}
+        {% endif %}
+
+    </div>
+{% endnamespace %}
