@@ -59,13 +59,10 @@
 
 {% set fieldOptions = settings.getFieldOptions() %}
 {% set isCommerceInstalled = craft.app.plugins.isPluginInstalled('commerce') %}
-{% set customValueOptions = [{
-    label: '',
-    value: ''
-}, {
-    label: 'Custom Value...'|t('ceneo-xml-feed-pro'),
-    value: constant('OPTION_CUSTOM_VALUE', settings)
-}] %}
+{% set customValueOptions = [
+    {label: '', value: ''},
+    {label: 'Custom Value...'|t('ceneo-xml-feed-pro'), value: constant('OPTION_CUSTOM_VALUE', settings)}
+] %}
 
 {% set settingsTabErrorKeys = [
     'currency',
@@ -84,25 +81,31 @@
 ] %}
 {% set errors = settings.getErrors()|keys %}
 
-{% set tabs = [{
-    label: 'Mapping'|t('ceneo-xml-feed-pro'),
-    url: '#settings-tab-mapping',
-    class: errors|diff(settingsTabErrorKeys, filtersTabErrorKeys)|length ? 'error' : ''
-}] %}
+{% set tabs = [
+    {
+        label: 'Mapping'|t('ceneo-xml-feed-pro'),
+        url: '#settings-tab-mapping',
+        class: errors|diff(settingsTabErrorKeys, filtersTabErrorKeys)|length ? 'error' : ''
+    }
+] %}
 
 {% if isCommerceInstalled %}
-    {% set tabs = tabs|merge([{
-        label: 'Settings'|t('ceneo-xml-feed-pro'),
-        url: '#settings-tab-settings',
-        class: errors|intersect(settingsTabErrorKeys)|length ? 'error' : ''
-    }]) %}
+    {% set tabs = tabs|merge([
+        {
+            label: 'Settings'|t('ceneo-xml-feed-pro'),
+            url: '#settings-tab-settings',
+            class: errors|intersect(settingsTabErrorKeys)|length ? 'error' : ''
+        }
+    ]) %}
 {% endif %}
 
-{% set tabs = tabs|merge([{
-    label: 'Filters'|t('ceneo-xml-feed-pro'),
-    url: '#settings-tab-filters',
-    class: errors|intersect(filtersTabErrorKeys)|length ? 'error' : ''
-}]) %}
+{% set tabs = tabs|merge([
+    {
+        label: 'Filters'|t('ceneo-xml-feed-pro'),
+        url: '#settings-tab-filters',
+        class: errors|intersect(filtersTabErrorKeys)|length ? 'error' : ''
+    }
+]) %}
 
 <header id="content-header" class="pane-header">
     {% include '_includes/tabs' with {
