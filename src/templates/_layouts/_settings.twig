@@ -1,0 +1,38 @@
+{#
+/**
+ * @author    kerosin
+ * @copyright Copyright (c) 2021 kerosin
+ * @link      https://github.com/kerosin
+ * @package   CeneoXmlFeedPro
+ * @since     1.2.0
+ */
+#}
+
+{% requireAdmin %}
+
+{% set crumbs = [
+    { label: 'Settings'|t('app'), url: url('settings') },
+    { label: 'Plugins'|t('app'), url: url('settings/plugins') }
+] %}
+
+{% set fullPageForm = true %}
+
+
+{% extends '_layouts/cp' %}
+{% set title = plugin.name %}
+{% set docTitle = title ~ ' - ' ~ 'Plugins'|t('app') %}
+
+
+{% if isVersionLt37 %}
+    {% set mainAttributes = {
+        class: 'is-version-lt-37'
+    } %}
+{% endif %}
+
+
+{% block content %}
+    <input type="hidden" name="action" value="plugins/save-plugin-settings">
+    <input type="hidden" name="pluginHandle" value="{{ plugin.handle }}">
+    {{ redirectInput('settings') }}
+    {{ settingsHtml|raw }}
+{% endblock %}
