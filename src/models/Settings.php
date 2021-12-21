@@ -195,6 +195,14 @@ class Settings extends Model
     public $attrs;
 
     /**
+     * Custom tags.
+     *
+     * @var array
+     * @since 1.2.0
+     */
+    public $customTags = [];
+
+    /**
      * Entry status filter.
      *
      * @var array

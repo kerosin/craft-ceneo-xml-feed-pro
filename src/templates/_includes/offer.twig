@@ -157,4 +157,20 @@
         </attrs>
     {% endif %}
 
+    {# Custom Tags #}
+    {% if settings.customTags is not empty and settings.customTags|length %}
+        {% for customTag in settings.customTags %}
+            {% set customTagName = customTag.name|trim %}
+            {% if customTagName is not empty and customTag.field is not empty %}
+                {{ xml.element({
+                    name: customTagName,
+                    element: element,
+                    field: customTag.field,
+                    customValue: customTag.customValue,
+                    separator: ';'
+                }) }}
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
 </o>

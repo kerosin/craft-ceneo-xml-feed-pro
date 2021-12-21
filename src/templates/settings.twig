@@ -217,6 +217,8 @@
             rows: settings.attrs,
             errors: settings.getErrors('attrs')
         }) }}
+        
+        <hr>
 
         <h2>{{ 'Optional Fields'|t('ceneo-xml-feed-pro') }}</h2>
 
@@ -252,6 +254,35 @@
             value: settings.imgsIField,
             options: {'': ''}|merge(fieldOptions),
             errors: settings.getErrors('imgsIField')
+        }) }}
+
+        <hr>
+
+        <h2>{{ 'Custom Tags'|t('ceneo-xml-feed-pro') }}</h2>
+
+        {{ forms.editableTableField({
+            id: 'customTags',
+            name: 'customTags',
+            cols: {
+                name: {
+                    type: 'singleline',
+                    heading: 'Name'|t('ceneo-xml-feed-pro')
+                },
+                field: {
+                    type: 'select',
+                    heading: 'Field'|t('ceneo-xml-feed-pro'),
+                    options: [{
+                        label: 'Custom Value'|t('ceneo-xml-feed-pro'),
+                        value: constant('OPTION_CUSTOM_VALUE', settings)
+                    }]|merge(fieldOptions)
+                },
+                customValue: {
+                    type: 'singleline',
+                    heading: 'Custom Value'|t('ceneo-xml-feed-pro')
+                }
+            },
+            rows: settings.customTags,
+            errors: settings.getErrors('customTags')
         }) }}
 
     </div>
