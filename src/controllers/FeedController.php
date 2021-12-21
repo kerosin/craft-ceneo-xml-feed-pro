@@ -12,6 +12,7 @@ use kerosin\ceneoxmlfeedpro\CeneoXmlFeedPro;
 use kerosin\ceneoxmlfeedpro\services\CeneoXmlFeedProService;
 
 use Craft;
+use craft\helpers\FileHelper;
 use craft\web\Controller;
 
 use yii\web\Response;
@@ -46,7 +47,13 @@ class FeedController extends Controller
     {
         $this->setXmlResponseHeader();
 
-        return $this->getService()->getEntriesFeedXml();
+        $output = $this->getService()->getEntriesFeedXml();
+
+        if ($this->isSaveXmlToFile()) {
+            $this->saveXmlToFile($output, 'entries');
+        }
+
+        return $output;
     }
 
     /**
@@ -57,7 +64,13 @@ class FeedController extends Controller
     {
         $this->setXmlResponseHeader();
 
-        return $this->getService()->getProductsFeedXml();
+        $output = $this->getService()->getProductsFeedXml();
+
+        if ($this->isSaveXmlToFile()) {
+            $this->saveXmlToFile($output, 'products');
+        }
+
+        return $output;
     }
 
     // Protected Methods
@@ -80,5 +93,30 @@ class FeedController extends Controller
         $response = Craft::$app->getResponse();
         $response->format = Response::FORMAT_RAW;
         $response->getHeaders()->set('Content-Type', 'application/xml; charset=UTF-8');
+    }
+
+    /**
+     * @param string $xml
+     * @param string|null $filePrefix
+     * @return void
+     * @throws Exception
+     * @since 1.2.0
+     */
+    protected function saveXmlToFile(string $xml, ?string $filePrefix = null): void
+    {
+        $path = Craft::getAlias('@webroot') . '/ceneo-xml-feed-pro/';
+        $path .= $filePrefix != null ? $filePrefix . '-' : '';
+        $path .= Craft::$app->getSites()->getCurrentSite()->handle . '.xml';
+
+        FileHelper::writeToFile($path, $xml);
+    }
+
+    /**
+     * @return bool
+     * @since 1.2.0
+     */
+    protected function isSaveXmlToFile(): bool
+    {
+        return Craft::$app->getRequest()->getQueryParam('save') !== null;
     }
 }
